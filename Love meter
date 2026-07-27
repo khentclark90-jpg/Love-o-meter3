@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Love-O-Meter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Space+Mono:wght@400;700&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #241016;
+    --bg-deep: #180a0f;
+    --card: #f7e9d7;
+    --card-shadow: #d8bd93;
+    --gold: #c9973a;
+    --gold-bright: #e8c15f;
+    --rose: #b84258;
+    --rose-deep: #8a2d40;
+    --ink: #2b1620;
+    --ink-soft: #5a3e46;
+  }
+
+  * { box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at top, #341721 0%, var(--bg) 45%, var(--bg-deep) 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 40px 16px;
+    font-family: 'Lora', serif;
+    color: var(--card);
+  }
+
+  .machine{
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+  }
+
+  /* marquee header */
+  .marquee{
+    background: linear-gradient(180deg, var(--rose) 0%, var(--rose-deep) 100%);
+    border: 3px solid var(--gold);
+    border-radius: 16px 16px 4px 4px;
+    padding: 18px 10px 22px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.25), 0 12px 24px rgba(0,0,0,0.35);
+  }
+
+  .bulbs{
+    display:flex;
+    justify-content: space-between;
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
+  .bulbs span{
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gold-bright);
+    box-shadow: 0 0 6px 2px rgba(232,193,95,0.7);
+    animation: twinkle 1.6s ease-in-out infinite;
+  }
+  .bulbs span:nth-child(even){ animation-delay: .5s; }
+  .bulbs span:nth-child(3n){ animation-delay: 1s; }
+  @keyframes twinkle{
+    0%,100%{ opacity:1; }
+    50%{ opacity:.35; }
+  }
+
+  .marquee h1{
+    font-family: 'Alfa Slab One', cursive;
+    font-size: clamp(28px, 7vw, 38px);
+    letter-spacing: 1px;
+    margin: 4px 0 2px;
+    color: var(--gold-bright);
+    text-shadow: 2px 2px 0 var(--ink), 0 0 18px rgba(232,193,95,0.35);
+  }
+  .marquee p{
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--card);
+    opacity: .85;
+  }
+
+  /* body panel */
+  .panel{
+    background: linear-gradient(180deg, #2e151d, #1d0d12);
+    border-left: 3px solid var(--gold);
+    border-right: 3px solid var(--gold);
+    padding: 26px 22px 8px;
+  }
+
+  /* gauge */
+  .gauge-wrap{
+    position: relative;
+    width: 240px;
+    height: 130px;
+    margin: 0 auto 6px;
+  }
+  .gauge-face{
+    width: 240px;
+    height: 120px;
+    border-radius: 120px 120px 0 0;
+    background: conic-gradient(from 270deg at 50% 100%,
+      #5b8fae 0deg,
+      #b8d3c9 45deg,
+      var(--gold) 90deg,
+      var(--rose) 135deg,
+      var(--rose-deep) 180deg
+    );
+    position: relative;
+    overflow: hidden;
+    border: 3px solid var(--gold);
+    border-bottom: none;
+  }
+  .gauge-face::after{
+    content:"";
+    position:absolute;
+    left: 14px; right: 14px; top: 14px;
+    bottom: -3px;
+    background: #1d0d12;
+    border-radius: 100px 100px 0 0;
+    border: 2px solid rgba(201,151,58,0.5);
+  }
+  .tick-label{
+    position:absolute;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--card);
+    opacity:.75;
+  }
+  .tick-cold{ left: 2px; bottom: 4px; }
+  .tick-warm{ left: 50%; top: -2px; transform: translateX(-50%); }
+  .tick-hot{ right: 0px; bottom: 4px; }
+
+  .needle{
+    position:absolute;
+    left: 50%;
+    bottom: 0;
+    width: 4px;
+    height: 96px;
+    background: linear-gradient(180deg, var(--rose) 0%, var(--card) 100%);
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(-90deg);
+    border-radius: 3px;
+    transition: transform 1.8s cubic-bezier(.2,1.4,.3,1);
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    z-index: 3;
+  }
+  .needle::after{
+    content:"";
+    position:absolute;
+    left:50%; top:-3px;
+    width: 8px; height: 8px;
+    background: var(--card);
+    border-radius: 50%;
+    transform: translateX(-50%);
+  }
+  .hub{
+    position:absolute;
+    left:50%; bottom:-8px;
+    width: 22px; height:22px;
+    background: var(--gold);
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+  }
+
+  .readout{
+    text-align:center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--gold-bright);
+    margin-bottom: 18px;
+    min-height: 16px;
+  }
+
+  /* form */
+  .field{
+    margin-bottom: 14px;
+  }
+  .field label{
+    display:block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 5px;
+  }
+  .field input{
+    width: 100%;
+    padding: 10px 12px;
+    background: #140a0d;
+    border: 1px solid var(--ink-soft);
+    border-radius: 6px;
+    color: var(--card);
+    font-family: 'Lora', serif;
+    font-size: 15px;
+  }
+  .field input::placeholder{ color: #6b525a; }
+  .field input:focus-visible{
+    outline: 2px solid var(--gold-bright);
+    outline-offset: 1px;
+  }
+
+  .lever-btn{
+    display:block;
+    width: 100%;
+    margin: 6px 0 24px;
+    padding: 13px;
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    border: none;
+    border-radius: 8px;
+    color: var(--ink);
+    font-family: 'Alfa Slab One', cursive;
+    font-size: 15px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #8a6a24, 0 6px 10px rgba(0,0,0,0.4);
+    transition: transform .08s ease;
+  }
+  .lever-btn:active{
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #8a6a24;
+  }
+  .lever-btn:focus-visible{
+    outline: 2px solid var(--card);
+    outline-offset: 2px;
+  }
+  .lever-btn:disabled{
+    opacity: .55;
+    cursor: default;
+  }
+
+  /* ticket slot + ticket */
+  .slot{
+    height: 10px;
+    background: #0e0709;
+    border-radius: 6px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+    margin: 0 6px;
+  }
+
+  .ticket-stage{
+    overflow: hidden;
+    height: 0;
+    transition: height .5s ease;
+    margin: 0 6px;
+  }
+  .ticket-stage.open{
+    height: var(--ticket-h, 240px);
+  }
+
+  .ticket{
+    background: var(--card);
+    color: var(--ink);
+    margin-top: -4px;
+    padding: 20px 18px 22px;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.4);
+    transform: translateY(-100%);
+    transition: transform .6s cubic-bezier(.2,.9,.3,1.1);
+    background-image:
+      radial-gradient(circle at 0 0, transparent 6px, var(--card) 6.5px),
+      radial-gradient(circle at 100% 0, transparent 6px, var(--card) 6.5px);
+    background-size: 16px 16px;
+    background-repeat: repeat-x;
+    background-position: top left, top right;
+  }
+  .ticket-stage.open .ticket{
+    transform: translateY(0%);
+  }
+
+  .ticket .names{
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-align:center;
+    color: var(--ink-soft);
+    border-bottom: 1px dashed var(--ink-soft);
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+  .ticket .score{
+    font-family: 'Alfa Slab One', cursive;
+    font-size: 44px;
+    text-align:center;
+    color: var(--rose-deep);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .ticket .score span{ font-size: 22px; }
+  .ticket .verdict{
+    text-align:center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    background: var(--ink);
+    display:inline-block;
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin: 0 auto 12px;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .ticket .fortune{
+    font-style: italic;
+    font-size: 14.5px;
+    line-height: 1.5;
+    text-align:center;
+    color: var(--ink);
+  }
+
+  .footer-note{
+    text-align:center;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--ink-soft);
+    padding: 14px 0 4px;
+  }
+
+  .base{
+    height: 14px;
+    background: linear-gradient(180deg, var(--gold), #8a6a24);
+    border-radius: 0 0 10px 10px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .needle, .ticket, .ticket-stage{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="machine">
+  <div class="marquee">
+    <div class="bulbs">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <h1>Love-O-Meter</h1>
+    <p>Step Right Up &middot; Est. Never</p>
+  </div>
+
+  <div class="panel">
+    <div class="gauge-wrap">
+      <div class="gauge-face">
+        <div class="tick-label tick-cold">COLD</div>
+        <div class="tick-label tick-warm">WARM</div>
+        <div class="tick-label tick-hot">SIZZLING</div>
+      </div>
+      <div class="needle" id="needle"></div>
+      <div class="hub"></div>
+    </div>
+    <div class="readout" id="readout">AWAITING TWO NAMES&hellip;</div>
+
+    <div class="field">
+      <label for="name1">First sweetheart</label>
+      <input type="text" id="name1" placeholder="e.g. Alex" maxlength="30">
+    </div>
+    <div class="field">
+      <label for="name2">Second sweetheart</label>
+      <input type="text" id="name2" placeholder="e.g. Jordan" maxlength="30">
+    </div>
+
+    <button class="lever-btn" id="lever">Pull The Lever</button>
+
+    <div class="slot"></div>
+    <div class="ticket-stage" id="ticketStage">
+      <div class="ticket" id="ticket">
+        <div class="names" id="ticketNames">&mdash;</div>
+        <div class="score" id="ticketScore">0<span>%</span></div>
+        <div class="verdict" id="ticketVerdict">&mdash;</div>
+        <div class="fortune" id="ticketFortune">&mdash;</div>
+      </div>
+    </div>
+    <div class="footer-note">For amusement purposes only &middot; results non-binding</div>
+  </div>
+  <div class="base"></div>
+</div>
+
+<script>
+  const name1 = document.getElementById('name1');
+  const name2 = document.getElementById('name2');
+  const lever = document.getElementById('lever');
+  const needle = document.getElementById('needle');
+  const readout = document.getElementById('readout');
+  const ticketStage = document.getElementById('ticketStage');
+  const ticket = document.getElementById('ticket');
+  const ticketNames = document.getElementById('ticketNames');
+  const ticketScore = document.getElementById('ticketScore');
+  const ticketVerdict = document.getElementById('ticketVerdict');
+  const ticketFortune = document.getElementById('ticketFortune');
+
+  function computeScore(a, b){
+    let la = a.toLowerCase().replace(/[^a-z]/g,'').split('');
+    let lb = b.toLowerCase().replace(/[^a-z]/g,'').split('');
+    if(la.length === 0 || lb.length === 0) return 0;
+
+    // classic cross-out method
+    for(let i = la.length - 1; i >= 0; i--){
+      const idx = lb.indexOf(la[i]);
+      if(idx !== -1){
+        la.splice(i,1);
+        lb.splice(idx,1);
+      }
+    }
+    let digits = String(la.length) + String(lb.length);
+    if(digits.length < 2) digits = '0' + digits;
+
+    while(digits.length > 2){
+      let next = '';
+      for(let i = 0; i < digits.length; i++){
+        const sum = parseInt(digits[i],10) + parseInt(digits[(i+1) % digits.length],10);
+        next += sum;
+      }
+      digits = next;
+    }
+    let score = parseInt(digits,10);
+    if(isNaN(score)) score = 0;
+    if(score > 100) score = 100;
+    return score;
+  }
+
+  const fortunes = [
+    { max: 20,  verdict: "Strictly Platonic",   text: "The stars suggest friendship, or possibly a well-matched pair of coworkers. Not every reading is a romance." },
+    { max: 40,  verdict: "Slow Burn",           text: "A flicker, not a flame &mdash; yet. Patience, a shared playlist, and one good conversation could change everything." },
+    { max: 60,  verdict: "Promising Static",    text: "There's a spark here, the kind that shows up when you least expect it. Worth investigating further." },
+    { max: 80,  verdict: "Warmly Combustible",  text: "A genuinely good match on paper &mdash; or ticket paper, in this case. Proceed with confidence." },
+    { max: 100, verdict: "Certified Sizzling",  text: "The needle nearly left the gauge. Rare, dramatic, the stuff of carnival legend. Handle with care." }
+  ];
+
+  function getFortune(score){
+    return fortunes.find(f => score <= f.max) || fortunes[fortunes.length - 1];
+  }
+
+  function runMachine(){
+    const a = name1.value.trim();
+    const b = name2.value.trim();
+    if(!a || !b){
+      readout.textContent = 'TWO NAMES REQUIRED';
+      return;
+    }
+
+    lever.disabled = true;
+    ticketStage.classList.remove('open');
+    ticket.style.transform = 'translateY(-100%)';
+    readout.textContent = 'CALCULATING\u2026';
+
+    const score = computeScore(a, b);
+    const angle = -90 + (score / 100) * 180;
+    needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+
+    setTimeout(() => {
+      readout.textContent = `READING: ${score}% COMPATIBLE`;
+      const f = getFortune(score);
+
+      ticketNames.textContent = `${a}  \u2764  ${b}`;
+      ticketScore.innerHTML = `${score}<span>%</span>`;
+      ticketVerdict.textContent = f.verdict;
+      ticketFortune.textContent = f.text;
+
+      ticketStage.style.setProperty('--ticket-h', ticket.scrollHeight + 20 + 'px');
+      ticketStage.classList.add('open');
+      lever.disabled = false;
+    }, 1400);
+  }
+
+  lever.addEventListener('click', runMachine);
+  [name1, name2].forEach(inp => {
+    inp.addEventListener('keydown', e => {
+      if(e.key === 'Enter') runMachine();
+    });
+  });
+</script>
+
+</body>
+</html>
